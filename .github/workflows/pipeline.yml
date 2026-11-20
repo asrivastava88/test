@@ -1,4 +1,4 @@
-name: Basic CI/CD Lab
+name: CI/CD Lab
 
 on:
   push:
