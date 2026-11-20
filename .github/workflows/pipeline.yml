@@ -1,0 +1,61 @@
+name: Basic CI/CD Lab
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate webpage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Check required content
+        run: |
+          test -s site/index.html
+          grep -q '<title>NetOps CI/CD Lab</title>' site/index.html
+          grep -q '<h1>' site/index.html
+          echo "Validation passed"
+
+  deploy:
+    name: Deploy webpage
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Package webpage
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Publish webpage
+        id: deployment
+        uses: actions/deploy-pages@v4
