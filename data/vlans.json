@@ -7,6 +7,10 @@
         {
             "id": 200,
             "name": "APPLICATIONS"
+        },
+        {
+            "id": 5000,
+            "name": "TESTING"
         }
     ]
 }
